@@ -20,6 +20,7 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -238,7 +239,41 @@ module.exports = {
               )
             ),
             // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
+          },/*{
+            test:/\.css$/,
+            use:ExtractTextPlugin.extract({
+              fallback:'style-loader',
+              use:[
+                {
+                  loader:'css-loader',
+                  options:{
+                    modules:true,
+                    localIdentName:'[name]__[local]__[hash:base64:5]'
+                  }
+                },
+                'postcss-loader'
+              ]
+            })
+          },*/{
+            test:/\.scss$/,
+            use:ExtractTextPlugin.extract({
+              fallback:'style-loader',
+              use:[
+                {
+                  loader:'css-loader',
+                  options:{
+                    modules:true,
+                    sourceMap:true,
+                    importLoaders:2,
+                    localIdentName:'[name]__[local]__[hash:base64:5]'
+                  }
+                },
+                'sass-loader'
+              ]
+            })
           },
+
+
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader doesn't use a "test" so it will catch all modules
@@ -312,7 +347,7 @@ module.exports = {
     }),
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin({
-      filename: cssFilename,
+      filename:'styles.css',allChunks: true
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
@@ -356,6 +391,7 @@ module.exports = {
     // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
     // You can remove this if you don't use Moment.js:
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
